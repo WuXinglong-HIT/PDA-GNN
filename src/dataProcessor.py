@@ -6,6 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from scipy.sparse import csr_matrix, coo_matrix
 
+import parse
 from utils import enPrint
 from parse import argParser
 
@@ -16,18 +17,16 @@ class GraphDataset(Dataset):
         IN THE FORM OF **GRAPH**
     """
 
-    def __init__(self, datasetName="Gowalla"):
+    def __init__(self, datasetName="Amazon-Book"):
         super(GraphDataset, self).__init__()
         self.datasetName = datasetName
         self.filePath = None
-        if self.datasetName == 'Gowalla':
-            self.filePath = '../data/gowalla'
-        elif self.datasetName == 'Amazon-Book':
+        if self.datasetName == 'Amazon-Book':
             self.filePath = '../data/amazon-book'
-        elif self.datasetName == 'LastFM':
-            self.filePath = '../data/lastfm'
-        elif self.datasetName == 'Yelp2018':
-            self.filePath = '../data/yelp2018'
+        elif self.datasetName == 'Amazon-CDs':
+            self.filePath = '../data/amazon-cds'
+        elif self.datasetName == 'MovieLens-1M':
+            self.filePath = '../data/ml-1m'
 
         self.numUsers = 0
         self.numItems = 0
@@ -149,8 +148,8 @@ class GraphDataset(Dataset):
                 sp.save_npz(join(self.filePath, npzFileName), normG)
 
             self.normGraph = transCsrMatrix2SparseTensor(normG)
-            if argParser.CUDA_AVAILABLE:
-                self.normGraph = self.normGraph.coalesce().to(argParser.DEVICE)
+            if parse.CUDA_AVAILABLE:
+                self.normGraph = self.normGraph.coalesce().to(parse.DEVICE)
 
         return self.normGraph
 
@@ -178,5 +177,5 @@ class GraphDataset(Dataset):
 
 
 if __name__ == '__main__':
-    data = GraphDataset("Yelp2018")
+    data = GraphDataset("Amazon-Book")
     norm = data.getNormAdj

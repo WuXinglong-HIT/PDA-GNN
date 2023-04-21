@@ -1,5 +1,6 @@
 import torch
 import collections
+import parse
 
 from torch import nn
 import torch.nn.functional as F
@@ -22,7 +23,7 @@ class PDAGNN(nn.Module):
         self.embeddingDim = args.embedding_dim
         self.hiddenDims = args.att_hidden_dims
         self.keepProb = args.keep_prob
-        self.device = args.DEVICE
+        self.device = parse.DEVICE
         self.finalIntegration = args.final_integration
         self.attNorm = args.att_norm
         # numLayers stand for GCN propagation depth, identifying with number of attributes

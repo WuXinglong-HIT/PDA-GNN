@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader
 from warnings import simplefilter
 from tensorboardX import SummaryWriter
 from parse import argParser
+from parse import CUDA_AVAILABLE
+from parse import DEVICE
 from utils import enPrint, setSeed
 
 from model import PDAGNN
@@ -25,7 +27,7 @@ TEST_BATCH_SIZE = args.test_batch_size
 LR = args.lr
 EPOCHS = args.epochs
 SEED = args.seed
-COMMENT = args.comment
+PREFIX = args.prefix
 DATASET = args.dataset
 TOPK = args.topK
 WEIGHT_DECAY1 = args.weight_decay_embed
@@ -36,8 +38,6 @@ IF_REG_EMBEDDING = args.ifRegEmbedding
 IF_DROPOUT = args.ifDropOut
 IF_LOAD = args.ifLoad
 LOAD_MODEL_NAME = args.load_model_name
-CUDA_AVAILABLE = args.CUDA_AVAILABLE
-DEVICE = args.DEVICE
 
 # Preparation
 setSeed(SEED)
@@ -56,9 +56,9 @@ DUMP_FILE_SUFFIX = ".pth.tar"
 
 # TensorBoard
 writer = SummaryWriter(logdir=os.path.join(BOARD_PATH,
-                                           argParser.comment + time.strftime("%Y%m%d-%Hh%Mm%Ss",
+                                           args.prefix + time.strftime("%Y%m%d-%Hh%Mm%Ss",
                                                                              time.localtime(time.time()))),
-                       comment=COMMENT)
+                       comment=PREFIX)
 
 
 # Train
@@ -82,12 +82,13 @@ def train(userIDs, posItemIDs, negItemIDs, epoch):
             miniBatch(userIDs, posItemIDs, negItemIDs, batchSize=BATCH_SIZE)):
         loss, regEmbedTerm, regBehavTerm = model.bprLoss(userIDs=batchUser, posItemIDs=batchPos, negItemIDs=batchNeg)
         print(f"\tLOSS:{loss:.4f}\tREG1:{regEmbedTerm:.4f}\tREG2:{regBehavTerm:.4f}", end='\t')
-        # loss += regEmbedTerm * WEIGHT_DECAY1 + regBehavTerm * WEIGHT_DECAY2
         loss += regEmbedTerm * WEIGHT_DECAY1 + regBehavTerm * WEIGHT_DECAY2
         print(f"Total LOSS:{loss:.4f}")
+        # gradient propagation
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        # Tensorboard Writing
         averageLoss += loss.item()
         globalTrainStep += 1
         writer.add_scalar("Train/BPR_LOSS", loss.item(), global_step=globalTrainStep, walltime=time.time())
@@ -128,7 +129,7 @@ def test(testSampleData: dict, globalStep: int):
             recalls = []
             precisions = []
             ndcgs = []
-            for k in argParser.topK:
+            for k in args.topK:
                 recall, precision, ndcg = metricAtK(groundTruePosItems, res, k)
                 recalls.append(recall)
                 precisions.append(precision)
@@ -205,9 +206,9 @@ if __name__ == '__main__':
 
     try:
         for epoch in range(EPOCHS):
-            if epoch % 1 == 0:
+            if epoch % 10 == 0:
                 test(testSampleData, epoch)
-                # torch.save(model.state_dict(), DUMP_FILE_PREFIX + "epoch-" + str(epoch) + DUMP_FILE_SUFFIX)
+                torch.save(model.state_dict(), DUMP_FILE_PREFIX + "epoch-" + str(epoch) + DUMP_FILE_SUFFIX)
             userID, posItemID, negItemID = trainTripleSampling(graph)
             train(userID, posItemID, negItemID, epoch)
     finally:
