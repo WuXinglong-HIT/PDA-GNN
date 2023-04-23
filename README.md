@@ -8,10 +8,10 @@ In this work, we propose PDA-GNN, a propagation-depth-aware GNN model for recomm
 ![Architecture](fig/architecture.png)
 
 ## Package
-torch==1.11.0
-numpy
-pandas
-sklearn
+* torch==1.11.0
+* numpy==1.22.3
+* pandas==1.4.1
+* sklearn==0.0
 
 ## Results
 
