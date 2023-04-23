@@ -1,9 +1,9 @@
 # PDA-GNN
-This is the Official PyTorch Implementation for our paper:
+This Is the Official PyTorch Implementation for Our Paper:
 >PDA-GNN: Propagation-Depth-Aware Graph Neural Networks for Recommendation.
 
 ## Overview
-In this work, we propose PDA-GNN, a propagation-depth-aware GNN model for recommendation, which differentiates the attribute embeddings of the entities in recommender systems concerning propagation depth.
+In this work, we propose PDA-GNN, a propagation-depth-aware GNN model for recommendation, which differentiates the attribute embeddings of the entities in recommender systems concerning propagation depths.
 
 ![Architecture](fig/architecture.png)
 
