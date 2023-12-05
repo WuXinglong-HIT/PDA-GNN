@@ -15,7 +15,7 @@ idna==3.3
 ipykernel==6.9.2
 ipython==7.32.0
 jedi==0.18.1
-joblib==1.1.0
+joblib==1.2.0
 jupyter-client==7.1.2
 jupyter-core==4.9.2
 kiwisolver==1.4.0
